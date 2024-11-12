@@ -17,8 +17,7 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "OrderedCollections", package: "swift-collections"),
                 .product(name: "BitCollections", package: "swift-collections"),
-                .product(name: "HashTreeCollections", package: "swift-collections"),
-                .product(name: "SortedCollections", package: "swift-collections"),
+                .product(name: "HashTreeCollections", package: "swift-collections")
             ],
             resources: [
                 .process("ExampleInputs/")
