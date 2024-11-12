@@ -6,7 +6,6 @@
 
 import Foundation
 import ArgumentParser
-import WebKit
 
 @main
 final class Runner: AsyncParsableCommand {
@@ -19,7 +18,7 @@ final class Runner: AsyncParsableCommand {
         static let defaultMonth = 12
         static let defaultDay = 1
         static let dayClassFormat = "Day%@"
-        static let introLogFormat = "🎄🎄🎄 Advent of Code \(GlobalConstant.year) 🎄🎄🎄\n--- DAY %@ ---"
+        static let introLogFormat = "🎄🎄🎄 Advent of Code \(GlobalConstant.year) 🎄🎄🎄\n\n--- DAY %@ ---"
         static let infoLogFormat = "Runnable parts: %@\nUse example input: %@"
         static let solutionLogFormat = "The solution of Day %d Part %d is: %d"
     }
