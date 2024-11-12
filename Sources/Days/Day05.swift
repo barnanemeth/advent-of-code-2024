@@ -13,10 +13,10 @@ final class Day05: DayBase { }
 
 extension Day05: Day {
     func partOne() throws -> Int {
-        preconditionFailure("Must implement")
+        throw PartUnimplemented()
     }
     
     func partTwo() throws -> Int {
-        preconditionFailure("Must implement")
+        throw PartUnimplemented()
     }
 }

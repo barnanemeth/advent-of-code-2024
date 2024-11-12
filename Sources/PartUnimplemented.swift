@@ -8,5 +8,5 @@
 import Foundation
 
 struct PartUnimplemented: Error, LocalizedError {
-    var errorDescription: String { "Part unimplemented" }
+    var errorDescription: String? { "Part unimplemented" }
 }
