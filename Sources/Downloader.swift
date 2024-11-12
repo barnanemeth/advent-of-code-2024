@@ -12,14 +12,14 @@ struct Downloader {
     // MARK: Inner types
 
     enum `Error`: Swift.Error, LocalizedError {
-        case missingCookie
-        case invalidCookie
+        case missingSessionToken
+        case invalidSessionToken
         case notFound
 
         var errorDescription: String? {
             switch self {
-            case .missingCookie: "Missing cookie"
-            case .invalidCookie: "Invalid cookie"
+            case .missingSessionToken: "Missing session token"
+            case .invalidSessionToken: "Invalid session token"
             case .notFound: "Resource not found"
             }
         }
@@ -40,12 +40,12 @@ struct Downloader {
 
     private let session = URLSession.shared
     private let userDefaults = UserDefaults.standard
-    private let cookieValue: String?
+    private let sessionToken: String?
 
     // MARK: Init
 
-    init(cookieValue: String?) {
-        self.cookieValue = cookieValue
+    init(sessionToken: String?) {
+        self.sessionToken = sessionToken
     }
 }
 
@@ -67,7 +67,7 @@ extension Downloader: InputSourceLoader {
 
 extension Downloader {
     private func buildRequest(for day: Int) throws -> URLRequest {
-        guard let cookieValue else { throw Error.missingCookie }
+        guard let sessionToken else { throw Error.missingSessionToken }
 
         let url = Constant.baseURL
             .appending(path: GlobalConstant.year.description)
@@ -76,7 +76,7 @@ extension Downloader {
             .appending(path: Constant.inputSubpath)
         var request = URLRequest(url: url)
         request.setValue(
-            String(format: Constant.cookieSessionFormat, cookieValue),
+            String(format: Constant.cookieSessionFormat, sessionToken),
             forHTTPHeaderField: Constant.cookieHeaderKey
         )
         return request
@@ -90,7 +90,7 @@ extension Downloader {
         if httpUrlResponse.statusCode == 404 {
             throw Error.notFound
         }
-        throw Error.invalidCookie
+        throw Error.invalidSessionToken
     }
 
     private func downloadInput(day: Int) async throws -> String {

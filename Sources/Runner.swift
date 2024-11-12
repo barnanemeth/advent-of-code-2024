@@ -13,8 +13,7 @@ final class Runner: AsyncParsableCommand {
     // MARK: Constants
 
     private enum Constant {
-        static let dayMinimum = 1
-        static let dayMaximum = 24
+        static let dayRange = (1...24)
         static let defaultMonth = 12
         static let defaultDay = 1
         static let dayClassFormat = "Day%@"
@@ -27,8 +26,8 @@ final class Runner: AsyncParsableCommand {
 
     @Option(name: .long, help: "Day number")
     private var day: Int? = nil
-    @Option(name: .long, help: "Cookie value")
-    private var cookie: String? = nil
+    @Option(name: .customLong("session-token"), help: "Session token")
+    private var sessionToken: String? = nil
     @Argument(help: "Runnable parts")
     private var parts: [Part]
     @Flag(name: .customLong("use-example-input"), help: "Should use example input") 
@@ -57,7 +56,7 @@ extension Runner {
 extension Runner {
     private func checkDayIfNeeded() throws {
         guard let day else { return }
-        if day < Constant.dayMinimum || day > Constant.dayMaximum {
+        if !(Constant.dayRange ~= day) {
             throw RunnerError.invalidDay(day: day)
         }
     }
@@ -70,8 +69,8 @@ extension Runner {
         let components = calendar.dateComponents([.month, .day], from: Date.now)
         guard components.month == Constant.defaultMonth,
               let day = components.day,
-              day < Constant.dayMaximum else { return Constant.defaultDay }
-        
+              day < Constant.dayRange.upperBound else { return Constant.defaultDay }
+
         return day
     }
 
@@ -89,7 +88,7 @@ extension Runner {
         let inputSourceLoader: InputSourceLoader = if shouldUseExampleInput {
             FileReader()
         } else {
-            Downloader(cookieValue: cookie)
+            Downloader(sessionToken: sessionToken)
         }
         let content = try await inputSourceLoader.load(day: dayNumber)
 
