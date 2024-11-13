@@ -19,7 +19,7 @@ final class Runner: AsyncParsableCommand {
         static let dayClassFormat = "Day%@"
         static let introLogFormat = "🎄🎄🎄 Advent of Code \(GlobalConstant.year) 🎄🎄🎄\n\n--- DAY %@ ---"
         static let infoLogFormat = "Runnable parts: %@\nUse example input: %@"
-        static let solutionLogFormat = "The solution of Day %d Part %d is: %d"
+        static let solutionLogFormat = "The solution of Day %d Part %d is: %@"
     }
 
     // MARK: Private properties
@@ -116,11 +116,11 @@ extension Runner {
 
         if parts.contains(.one) {
             let solution = try dayInstance.partOne()
-            print(String(format: Constant.solutionLogFormat, number, 1, solution))
+            print(String(format: Constant.solutionLogFormat, number, 1, solution.description))
         }
         if parts.contains(.two) {
             let solution = try dayInstance.partTwo()
-            print(String(format: Constant.solutionLogFormat, number, 2, solution))
+            print(String(format: Constant.solutionLogFormat, number, 2, solution.description))
         }
     }
 }
