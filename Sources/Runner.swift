@@ -13,7 +13,7 @@ final class Runner: AsyncParsableCommand {
     // MARK: Constants
 
     private enum Constant {
-        static let dayRange = (1...24)
+        static let dayRange = (1...25)
         static let defaultMonth = 12
         static let defaultDay = 1
         static let dayClassFormat = "Day%@"
