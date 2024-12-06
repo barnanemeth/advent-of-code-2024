@@ -7,6 +7,57 @@
 
 import Foundation
 
+fileprivate struct Map {
+    var map: [Point: MapPosition]
+    let maxX: Int
+    let maxY: Int
+    var obstaclesSeen = 0
+
+    var currentPosition: (point: Point, direction: Direction) {
+        for (key, position) in map {
+            if case let .currentLocation(direction) = position {
+                return (key, direction)
+            }
+        }
+        fatalError()
+    }
+    var canMove: Bool {
+        let current = currentPosition
+        return switch current.direction {
+        case .up:
+            current.point.y != .zero
+        case .right:
+            current.point.x != maxX
+        case .down:
+            current.point.y != maxY
+        case .left:
+            current.point.x != .zero
+        default:
+            fatalError()
+        }
+    }
+    var isLoopDetected: Bool {
+        obstaclesSeen == 2
+    }
+
+    mutating func moveOneStep() {
+        let current = currentPosition
+        let proposedNew = current.point.moved(to: current.direction)
+        let mapItem = map[proposedNew]
+
+        if mapItem == .item || mapItem == .obstacle {
+            map[current.point] = map[current.point]?.rotated()
+            if mapItem == .obstacle {
+                obstaclesSeen += 1
+                return
+            }
+        } else if mapItem == .empty || mapItem == .seen {
+            map[proposedNew] = .currentLocation(direction: current.direction)
+            map[current.point] = .seen
+        }
+    }
+}
+
 fileprivate enum MapPosition: Equatable {
     case currentLocation(direction: Direction)
     case empty
@@ -51,37 +102,7 @@ fileprivate enum MapPosition: Equatable {
 }
 
 final class Day06: DayBase {
-    private var map: [Point: MapPosition]
-    private let maxX: Int
-    private let maxY: Int
-    private var obstaclesSeen = 0
-
-    private var currentPosition: (point: Point, direction: Direction) {
-        for (key, position) in map {
-            if case let .currentLocation(direction) = position {
-                return (key, direction)
-            }
-        }
-        fatalError()
-    }
-    private var canMove: Bool {
-        let current = currentPosition
-        return switch current.direction {
-        case .up:
-            current.point.y != .zero
-        case .right:
-            current.point.x != maxX
-        case .down:
-            current.point.y != maxY
-        case .left:
-            current.point.x != .zero
-        default:
-            fatalError()
-        }
-    }
-    private var isLoopDetected: Bool {
-        obstaclesSeen == 2
-    }
+    private var map: Map
 
     required init(inputContent: String) {
         let points = inputContent.trimmed().getLines().enumerated().flatMap { y, line in
@@ -89,28 +110,15 @@ final class Day06: DayBase {
                 (Point(x, y), MapPosition(character: character))
             }
         }
-        map = Dictionary(points, uniquingKeysWith: { _, item in item })
-        maxX = map.max(by: { $0.key.x < $1.key.x })?.key.x ?? .zero
-        maxY = map.max(by: { $0.key.y < $1.key.y })?.key.y ?? .zero
+
+        let innerMap = Dictionary(points, uniquingKeysWith: { _, item in item })
+        map = Map(
+            map: innerMap,
+            maxX: innerMap.max(by: { $0.key.x < $1.key.x })?.key.x ?? .zero,
+            maxY: innerMap.max(by: { $0.key.y < $1.key.y })?.key.y ?? .zero
+        )
 
         super.init(inputContent: inputContent)
-    }
-
-    private func moveOneStep() {
-        let current = currentPosition
-        let proposedNew = current.point.moved(to: current.direction)
-        let mapItem = map[proposedNew]
-
-        if mapItem == .item || mapItem == .obstacle {
-            map[current.point] = map[current.point]?.rotated()
-            if mapItem == .obstacle {
-                obstaclesSeen += 1
-                return
-            }
-        } else if mapItem == .empty || mapItem == .seen {
-            map[proposedNew] = .currentLocation(direction: current.direction)
-            map[current.point] = .seen
-        }
     }
 }
 
@@ -118,34 +126,36 @@ final class Day06: DayBase {
 
 extension Day06: Day {
     func partOne() async throws -> CustomStringConvertible {
-        while canMove {
-            moveOneStep()
+        while map.canMove {
+            map.moveOneStep()
         }
-        return map.count(where: { $0.value == .seen }) + 1
+        return map.map.count(where: { $0.value == .seen }) + 1
     }
     
-    func partTwo() throws -> CustomStringConvertible {
-        var possibleObstaclePositions = (0...maxX).reduce(into: [Point]()) { points, x in
-            (0...maxY).forEach { points.append(Point(x, $0)) }
+    func partTwo() async throws -> CustomStringConvertible {
+        var possibleObstaclePositions = (0...map.maxX).reduce(into: [Point]()) { points, x in
+            (0...map.maxY).forEach { points.append(Point(x, $0)) }
         }
-        possibleObstaclePositions.removeAll(where: { map[$0] == .item })
-        possibleObstaclePositions.removeAll(where: { map[$0]!.isCurrent })
+        possibleObstaclePositions.removeAll(where: { map.map[$0] == .item })
+        possibleObstaclePositions.removeAll(where: { map.map[$0]!.isCurrent })
 
-        let originalMap = map
-        var correctObstaclePositions = [Point]()
-        for position in possibleObstaclePositions {
-            var newMap = originalMap
-            newMap[position] = .obstacle
-            map = newMap
-            obstaclesSeen = 0
-            while canMove && !isLoopDetected {
-                moveOneStep()
-                if isLoopDetected {
-                    correctObstaclePositions.append(position)
+        return await withTaskGroup(of: (Point, Bool).self) { taskGroup in
+            possibleObstaclePositions.forEach { point in
+                taskGroup.addTask {
+                    defer { print(point) }
+                    var map = Map(map: self.map.map, maxX: self.map.maxX, maxY: self.map.maxY)
+                    map.map[point] = .obstacle
+                    while map.canMove && !map.isLoopDetected {
+                        map.moveOneStep()
+                        if map.isLoopDetected {
+                            return (point, true)
+                        }
+                    }
+                    return (point, false)
                 }
             }
-        }
 
-        return correctObstaclePositions.count
+            return await taskGroup.reduce(0) { sum, taskGroup in sum + (taskGroup.1 ? 1 : 0)  }
+        }
     }
 }
