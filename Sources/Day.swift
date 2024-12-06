@@ -7,8 +7,8 @@
 import Foundation
 
 protocol Day: AnyObject {
-    func partOne() throws -> CustomStringConvertible
-    func partTwo() throws -> CustomStringConvertible
+    func partOne() async throws -> CustomStringConvertible
+    func partTwo() async throws -> CustomStringConvertible
 }
 
 open class DayBase {

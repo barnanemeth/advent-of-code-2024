@@ -67,7 +67,7 @@ final class Day04: DayBase {
 // MARK: - Day
 
 extension Day04: Day {
-    func partOne() throws -> CustomStringConvertible {
+    func partOne() async throws -> CustomStringConvertible {
         matrix.keys
             .map { findMatching(at: $0) }
             .reduce(0, +) / 2

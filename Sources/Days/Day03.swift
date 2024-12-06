@@ -60,7 +60,7 @@ final class Day03: DayBase {
 // MARK: - Day
 
 extension Day03: Day {
-    func partOne() throws -> CustomStringConvertible {
+    func partOne() async throws -> CustomStringConvertible {
         multiplications.map(\.result).reduce(0, +)
     }
 

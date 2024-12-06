@@ -77,7 +77,7 @@ final class Day05: DayBase {
 // MARK: - Day
 
 extension Day05: Day {
-    func partOne() throws -> CustomStringConvertible {
+    func partOne() async throws -> CustomStringConvertible {
         sumOfMiddlePages(updates: updates)
     }
     

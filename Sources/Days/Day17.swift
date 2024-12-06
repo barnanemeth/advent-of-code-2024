@@ -12,7 +12,7 @@ final class Day17: DayBase { }
 // MARK: - Day
 
 extension Day17: Day {
-    func partOne() throws -> CustomStringConvertible {
+    func partOne() async throws -> CustomStringConvertible {
         throw PartUnimplemented()
     }
     

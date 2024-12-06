@@ -117,7 +117,7 @@ final class Day06: DayBase {
 // MARK: - Day
 
 extension Day06: Day {
-    func partOne() throws -> CustomStringConvertible {
+    func partOne() async throws -> CustomStringConvertible {
         while canMove {
             moveOneStep()
         }

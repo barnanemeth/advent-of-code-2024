@@ -60,7 +60,7 @@ final class Day02: DayBase {
 // MARK: - Day
 
 extension Day02: Day {
-    func partOne() throws -> CustomStringConvertible {
+    func partOne() async throws -> CustomStringConvertible {
         reports.reduce(0) { $1.isSafe ? $0 + 1 : $0 }
     }
 

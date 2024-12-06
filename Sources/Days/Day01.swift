@@ -38,7 +38,7 @@ final class Day01: DayBase {
 // MARK: - Day
 
 extension Day01: Day {
-    func partOne() throws -> CustomStringConvertible {
+    func partOne() async throws -> CustomStringConvertible {
         pairs.map(\.distance).reduce(0, +)
     }
 

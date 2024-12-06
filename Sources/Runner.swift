@@ -115,11 +115,11 @@ extension Runner {
         let dayInstance = try await getInstanceForDayNumber(number)
 
         if parts.contains(.one) {
-            let solution = try dayInstance.partOne()
+            let solution = try await dayInstance.partOne()
             print(String(format: Constant.solutionLogFormat, number, 1, solution.description))
         }
         if parts.contains(.two) {
-            let solution = try dayInstance.partTwo()
+            let solution = try await dayInstance.partTwo()
             print(String(format: Constant.solutionLogFormat, number, 2, solution.description))
         }
     }
